@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Party Games</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  font-family: 'Microsoft YaHei','PingFang SC','Helvetica Neue',sans-serif;
+  overflow:hidden;
+  background:#1a1a2e;
+  color:#fff;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.page {
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.page.active { display:flex; }
+
+#backBtn {
+  position:fixed; top:2vmin; left:2vmin;
+  width:5vmin; height:5vmin;
+  min-width:36px; min-height:36px;
+  background:rgba(255,255,255,0.15);
+  border:2px solid rgba(255,255,255,0.4);
+  border-radius:50%;
+  color:#fff;
+  font-size:2.5vmin;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:9999;
+  transition:background 0.3s;
+}
+#backBtn:hover { background:rgba(255,255,255,0.3); }
+#backBtn.show { display:flex; }
+
+#mainPage {
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+}
+.main-title {
+  font-size:4vmin;
+  margin-bottom:5vmin;
+  text-align:center;
+  color:rgba(255,255,255,0.6);
+  letter-spacing:0.5vmin;
+}
+.menu-btn {
+  width:40vmin; min-width:200px; max-width:360px;
+  padding:2.5vmin 0;
+  margin:1.5vmin 0;
+  border:2px solid rgba(255,255,255,0.3);
+  border-radius:1.5vmin;
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  font-size:2.8vmin;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  letter-spacing:0.3vmin;
+}
+.menu-btn:hover {
+  background:rgba(255,255,255,0.2);
+  border-color:rgba(255,255,255,0.6);
+  transform:scale(1.05);
+}
+.menu-btn:active { transform:scale(0.97); }
+
+#truthDarePage {
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  overflow:hidden;
+}
+.circles-wrap {
+  position:relative;
+  width:80vmin; height:20vmin;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.td-circle {
+  width:14vmin; height:14vmin;
+  border-radius:50%;
+  background:#fff;
+  border:3px solid #222;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3.5vmin;
+  font-weight:bold;
+  color:#222;
+  cursor:pointer;
+  position:absolute;
+  transition:all 0.7s cubic-bezier(0.4,0,0.2,1);
+  z-index:2;
+}
+#circleGirl { left:10%; }
+#circleMid { left:50%; transform:translateX(-50%); }
+#circleBoy { right:10%; }
+.td-circle.merge-center {
+  left:50% !important;
+  right:auto !important;
+  transform:translateX(-50%) !important;
+}
+.td-circle.hide-circle {
+  opacity:0 !important;
+  pointer-events:none !important;
+  transform:scale(0.3) !important;
+}
+
+.td-panel {
+  position:absolute; left:0; width:100%;
+  height:33.34%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:5vmin;
+  font-weight:bold;
+  color:#fff;
+  cursor:pointer;
+  z-index:10;
+  transition:all 0.6s cubic-bezier(0.4,0,0.2,1);
+  letter-spacing:1vmin;
+}
+#panelBlue { top:-33.34%; background:#2563eb; }
+#panelBlue.slide-in { top:0; }
+#panelBlue.full-cover { height:100% !important; top:0 !important; }
+#panelRed { bottom:-33.34%; background:#dc2626; }
+#panelRed.slide-in { bottom:0; }
+#panelRed.full-cover { height:100% !important; bottom:0 !important; }
+
+.q-card {
+  position:absolute;
+  width:0; height:0;
+  background:#fff;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+  opacity:0;
+  transition:all 0.6s cubic-bezier(0.4,0,0.2,1);
+  padding:0;
+  overflow:hidden;
+}
+.q-card.show {
+  width:70vmin;
+  min-height:30vmin;
+  max-height:60vmin;
+  opacity:1;
+  border-radius:2vmin;
+  padding:4vmin;
+}
+.q-card .q-text {
+  color:#222;
+  font-size:3vmin;
+  text-align:center;
+  line-height:1.6;
+  word-break:break-word;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2vmin;
+}
+.q-card .q-next {
+  position:absolute;
+  bottom:2vmin; right:3vmin;
+  padding:1vmin 3vmin;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:1vmin;
+  font-size:2vmin;
+  cursor:pointer;
+}
+.q-card .q-next:hover { background:#1d4ed8; }
+
+#customPage {
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  justify-content:flex-start;
+  padding:8vmin 4vmin 4vmin;
+  overflow-y:auto;
+}
+.custom-box {
+  width:90%;
+  max-width:700px;
+}
+.custom-box h2 {
+  text-align:center;
+  margin-bottom:4vmin;
+  font-size:3.5vmin;
+}
+.c-section { margin-bottom:4vmin; }
+.c-section h3 {
+  font-size:2.5vmin;
+  margin-bottom:1.5vmin;
+  color:rgba(255,255,255,0.8);
+}
+.c-section textarea {
+  width:100%;
+  min-height:12vmin;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:1vmin;
+  color:#fff;
+  font-size:2vmin;
+  padding:2vmin;
+  resize:vertical;
+  font-family:inherit;
+  line-height:1.8;
+}
+.c-section textarea:focus {
+  outline:none;
+  border-color:#2563eb;
+  background:rgba(255,255,255,0.15);
+}
+.c-section textarea::placeholder { color:rgba(255,255,255,0.4); }
+.c-hint {
+  font-size:1.8vmin;
+  color:rgba(255,255,255,0.45);
+  margin-top:0.8vmin;
+}
+.c-save {
+  display:block;
+  margin:3vmin auto;
+  padding:1.5vmin 6vmin;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:1vmin;
+  font-size:2.5vmin;
+  cursor:pointer;
+}
+.c-save:hover { background:#1d4ed8; }
+
+#chessPage {
+  background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 100%);
+  justify-content:flex-start;
+  padding-top:6vmin;
+}
+.chess-wrapper {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:1;
+  width:100%;
+}
+.chess-board {
+  position:relative;
+  width:55vmin; height:55vmin;
+  max-width:500px; max-height:500px;
+}
+.chess-cell {
+  position:absolute;
+  border:1.5px solid rgba(255,255,255,0.35);
+  border-radius:0.5vmin;
+  background:rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.4vmin;
+  color:rgba(255,255,255,0.5);
+}
+.chess-cell.hl { background:rgba(255,255,0,0.25); }
+.chess-piece {
+  position:absolute;
+  border-radius:50%;
+  border:2px solid #fff;
+  z-index:5;
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.3vmin;
+  font-weight:bold;
+  color:#fff;
+}
+#pieceGirl { background:#dc2626; }
+#pieceBoy { background:#2563eb; }
+
+.dice-area {
+  padding:3vmin 0 4vmin;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.dice-info {
+  font-size:2vmin;
+  color:rgba(255,255,255,0.7);
+  margin-bottom:1.5vmin;
+  min-height:3vmin;
+  text-align:center;
+  max-width:80vw;
+}
+.dice-sub {
+  font-size:1.8vmin;
+  color:rgba(255,255,255,0.45);
+  margin-bottom:1vmin;
+  min-height:2.5vmin;
+  text-align:center;
+}
+.dice-btn {
+  width:10vmin; height:10vmin;
+  min-width:60px; min-height:60px;
+  background:#fff;
+  border-radius:1.5vmin;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:5vmin;
+  font-weight:bold;
+  color:#222;
+  cursor:pointer;
+  transition:transform 0.15s;
+  box-shadow:0 4px 15px rgba(0,0,0,0.3);
+  border:none;
+}
+.dice-btn:hover { transform:scale(1.08); }
+.dice-btn:active { transform:scale(0.95); }
+.dice-btn.rolling {
+  animation:shake 0.1s infinite alternate;
+}
+@keyframes shake {
+  0% { transform:rotate(-8deg) scale(1.05); }
+  100% { transform:rotate(8deg) scale(1.05); }
+}
+
+.overlay-bg {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+.overlay-bg.show { display:flex; }
+.popup-card {
+  background:#fff;
+  border-radius:2vmin;
+  padding:4vmin 5vmin;
+  max-width:70vmin;
+  min-width:40vmin;
+  text-align:center;
+}
+.popup-card .p-title {
+  font-size:2.5vmin;
+  margin-bottom:2vmin;
+  font-weight:bold;
+}
+.popup-card .p-text {
+  font-size:2.8vmin;
+  color:#222;
+  line-height:1.6;
+  margin-bottom:3vmin;
+}
+.popup-card .p-close {
+  padding:1.2vmin 4vmin;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:1vmin;
+  font-size:2.2vmin;
+  cursor:pointer;
+}
+.win-text {
+  font-size:6vmin;
+  font-weight:bold;
+  margin-bottom:4vmin;
+}
+.win-btn {
+  padding:2vmin 6vmin;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:1vmin;
+  font-size:2.5vmin;
+  cursor:pointer;
+}
+
+@media (max-width:600px) {
+  .menu-btn { min-width:160px; font-size:3.5vmin; }
+  .td-circle { width:16vmin; height:16vmin; font-size:4.5vmin; }
+  .q-card.show { width:85vw; }
+  .chess-board { width:75vmin; height:75vmin; }
+}
+</style>
+</head>
+<body>
+
+<div id="backBtn">&#9664;</div>
+
+<div id="mainPage" class="page active">
+  <div class="main-title">Couple Game</div>
+  <button class="menu-btn" id="btnTruth">Truth or Dare</button>
+  <button class="menu-btn" id="btnChess">Two-player Ludo</button>
+  <button class="menu-btn" id="btnCustom">Custom Question Bank</button>
+</div>
+
+<div id="truthDarePage" class="page">
+  <div class="circles-wrap" id="circlesWrap">
+    <div class="td-circle" id="circleGirl">Girl</div>
+    <div class="td-circle" id="circleMid"></div>
+    <div class="td-circle" id="circleBoy">Boy</div>
+  </div>
+  <div id="panelBlue" class="td-panel">Truth</div>
+  <div id="panelRed" class="td-panel">Dare</div>
+  <div class="q-card" id="qCard">
+    <div class="q-text" id="qText"></div>
+    <button class="q-next" id="qNext">NEXT</button>
+  </div>
+</div>
+
+<div id="customPage" class="page">
+  <div class="custom-box">
+    <h2>Custom Question Bank</h2>
+    <div class="c-section">
+      <h3>Girl Truth Questions</h3>
+      <textarea id="txtGirlTruth" placeholder="One truth question per line, press Enter to separate"></textarea>
+      <div class="c-hint">Enter one question per line; each line counts as one entry.</div>
+    </div>
+    <div class="c-section">
+      <h3>Girl Dares</h3>
+      <textarea id="txtGirlDare" placeholder="One dare per line, press Enter to separate"></textarea>
+    </div>
+    <div class="c-section">
+      <h3>Boy Truth Questions</h3>
+      <textarea id="txtBoyTruth" placeholder="One truth question per line, press Enter to separate"></textarea>
+    </div>
+    <div class="c-section">
+      <h3>Boy Dares</h3>
+      <textarea id="txtBoyDare" placeholder="One dare per line, press Enter to separate"></textarea>
+    </div>
+    <button class="c-save" id="btnSave">Save</button>
+  </div>
+</div>
+
+<div id="chessPage" class="page">
+  <div class="chess-wrapper">
+    <div class="chess-board" id="chessBoard">
+      <div class="chess-piece" id="pieceGirl">Girl</div>
+      <div class="chess-piece" id="pieceBoy">Boy</div>
+    </div>
+  </div>
+  <div class="dice-area">
+    <div class="dice-info" id="diceInfo">Click the dice to start the game</div>
+    <div class="dice-sub" id="diceSub"></div>
+    <button class="dice-btn" id="diceBtn">&#127922;</button>
+  </div>
+</div>
+
+<div class="overlay-bg" id="chessPopup">
+  <div class="popup-card">
+    <div class="p-title" id="popupTitle">Dare</div>
+    <div class="p-text" id="popupText"></div>
+    <button class="p-close" id="popupClose">Confirm</button>
+  </div>
+</div>
+
+<div class="overlay-bg" id="winOverlay">
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="win-text" id="winText"></div>
+    <button class="win-btn" id="winBtn">Play Again</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  /* ========== DATA ========== */
+  var defaultLib = {
+    Girl: {
+      truths: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      dares: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    },
+    Boy: {
+      truths: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      dares: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    }
+  };
+
+  var lib;
+  try {
+    var stored = localStorage.getItem("gameLib");
+    if (stored) {
+      lib = JSON.parse(stored);
+    } else {
+      lib = JSON.parse(JSON.stringify(defaultLib));
+    }
+  } catch(e) {
+    lib = JSON.parse(JSON.stringify(defaultLib));
+  }
+
+  /* ========== STATE ========== */
+  var currentPage = "main";
+
+  // Truth or Dare state
+  var tdState = "select";
+  var selectedPlayer = null;
+  var activeColor = null;
+
+  // Chess state
+  var chessGirl = 0;
+  var chessBoy = 0;
+  var spiralCells = [];
+  var chessGameOver = false;
+  var diceRolling = false;
+
+  // New dice logic state
+  var chessPhase = "firstRoll";   // "firstRoll" or "turns"
+  var firstPlayer = "";           // who goes first (Girl or Boy)
+  var secondPlayer = "";          // who goes second
+  var turnIndex = 0;              // 0=firstPlayer, 1=secondPlayer, 2=firstPlayer, ...
+
+  /* ========== DOM REFS ========== */
+  var backBtn = document.getElementById("backBtn");
+  var mainPage = document.getElementById("mainPage");
+  var truthDarePage = document.getElementById("truthDarePage");
+  var customPage = document.getElementById("customPage");
+  var chessPage = document.getElementById("chessPage");
+  var btnTruth = document.getElementById("btnTruth");
+  var btnChess = document.getElementById("btnChess");
+  var btnCustom = document.getElementById("btnCustom");
+  var circleGirl = document.getElementById("circleGirl");
+  var circleMid = document.getElementById("circleMid");
+  var circleBoy = document.getElementById("circleBoy");
+  var panelBlue = document.getElementById("panelBlue");
+  var panelRed = document.getElementById("panelRed");
+  var qCard = document.getElementById("qCard");
+  var qText = document.getElementById("qText");
+  var qNext = document.getElementById("qNext");
+  var txtGirlTruth = document.getElementById("txtGirlTruth");
+  var txtGirlDare = document.getElementById("txtGirlDare");
+  var txtBoyTruth = document.getElementById("txtBoyTruth");
+  var txtBoyDare = document.getElementById("txtBoyDare");
+  var btnSave = document.getElementById("btnSave");
+  var chessBoard = document.getElementById("chessBoard");
+  var pieceGirl = document.getElementById("pieceGirl");
+  var pieceBoy = document.getElementById("pieceBoy");
+  var diceInfo = document.getElementById("diceInfo");
+  var diceSub = document.getElementById("diceSub");
+  var diceBtn = document.getElementById("diceBtn");
+  var chessPopup = document.getElementById("chessPopup");
+  var popupTitle = document.getElementById("popupTitle");
+  var popupText = document.getElementById("popupText");
+  var popupClose = document.getElementById("popupClose");
+  var winOverlay = document.getElementById("winOverlay");
+  var winText = document.getElementById("winText");
+  var winBtn = document.getElementById("winBtn");
+
+  /* ========== NAVIGATION ========== */
+  function hideAllPages() {
+    mainPage.classList.remove("active");
+    truthDarePage.classList.remove("active");
+    customPage.classList.remove("active");
+    chessPage.classList.remove("active");
+  }
+
+  function goHome() {
+    currentPage = "main";
+    hideAllPages();
+    mainPage.classList.add("active");
+    backBtn.classList.remove("show");
+  }
+
+  function goTruthDare() {
+    currentPage = "truthDare";
+    hideAllPages();
+    truthDarePage.classList.add("active");
+    backBtn.classList.add("show");
+    resetTD();
+  }
+
+  function goCustom() {
+    currentPage = "custom";
+    hideAllPages();
+    customPage.classList.add("active");
+    backBtn.classList.add("show");
+    loadCustom();
+  }
+
+  function goChess() {
+    currentPage = "chess";
+    hideAllPages();
+    chessPage.classList.add("active");
+    backBtn.classList.add("show");
+    initChess();
+  }
+
+  backBtn.addEventListener("click", goHome);
+  btnTruth.addEventListener("click", goTruthDare);
+  btnChess.addEventListener("click", goChess);
+  btnCustom.addEventListener("click", goCustom);
+
+  /* ========== TRUTH OR DARE ========== */
+  function resetTD() {
+    tdState = "select";
+    selectedPlayer = null;
+    activeColor = null;
+
+    circleGirl.className = "td-circle";
+    circleGirl.textContent = "Girl";
+    circleGirl.style.cssText = "";
+
+    circleMid.className = "td-circle";
+    circleMid.textContent = "";
+    circleMid.style.cssText = "";
+
+    circleBoy.className = "td-circle";
+    circleBoy.textContent = "Boy";
+    circleBoy.style.cssText = "";
+
+    panelBlue.className = "td-panel";
+    panelBlue.style.cssText = "";
+    panelRed.className = "td-panel";
+    panelRed.style.cssText = "";
+
+    qCard.className = "q-card";
+    qCard.style.cssText = "";
+  }
+
+  function selectTDPlayer(player) {
+    if (tdState !== "select") { return; }
+    selectedPlayer = player;
+    tdState = "merging";
+
+    if (player === "Girl") {
+      circleGirl.classList.add("merge-center");
+      circleBoy.classList.add("hide-circle");
+      circleMid.textContent = "Girl";
+    } else {
+      circleBoy.classList.add("merge-center");
+      circleGirl.classList.add("hide-circle");
+      circleMid.textContent = "Boy";
+    }
+
+    setTimeout(function() {
+      tdState = "panels";
+      panelBlue.classList.add("slide-in");
+      panelRed.classList.add("slide-in");
+    }, 800);
+  }
+
+  circleGirl.addEventListener("click", function() { selectTDPlayer("Girl"); });
+  circleBoy.addEventListener("click", function() { selectTDPlayer("Boy"); });
+
+  function onPanelClick(color) {
+    if (tdState === "panels") {
+      activeColor = color;
+      tdState = "fullColor";
+      if (color === "blue") {
+        panelBlue.classList.add("full-cover");
+      } else {
+        panelRed.classList.add("full-cover");
+      }
+    } else if (tdState === "fullColor") {
+      tdState = "question";
+      showQuestion();
+    }
+  }
+
+  panelBlue.addEventListener("click", function() { onPanelClick("blue"); });
+  panelRed.addEventListener("click", function() { onPanelClick("red"); });
+
+  function showQuestion() {
+    var pool;
+    if (activeColor === "blue") {
+      pool = lib[selectedPlayer].truths;
+    } else {
+      pool = lib[selectedPlayer].dares;
+    }
+
+    if (!pool || pool.length === 0) {
+      qText.textContent = "(Question bank is empty, please go to Custom to add questions)";
+    } else {
+      var idx = Math.floor(Math.random() * pool.length);
+      qText.textContent = pool[idx];
+    }
+
+    qCard.style.width = "0";
+    qCard.style.height = "0";
+    qCard.style.borderRadius = "50%";
+    qCard.style.opacity = "1";
+    qCard.style.background = "#fff";
+    qCard.style.padding = "0";
+
+    setTimeout(function() {
+      qCard.classList.add("show");
+      qCard.style.width = "";
+      qCard.style.height = "";
+      qCard.style.borderRadius = "";
+      qCard.style.padding = "";
+    }, 50);
+  }
+
+  qNext.addEventListener("click", function() {
+    resetTD();
+  });
+
+  /* ========== CUSTOM ========== */
+  function loadCustom() {
+    txtGirlTruth.value = (lib.Girl.truths || []).join("\n");
+    txtGirlDare.value = (lib.Girl.dares || []).join("\n");
+    txtBoyTruth.value = (lib.Boy.truths || []).join("\n");
+    txtBoyDare.value = (lib.Boy.dares || []).join("\n");
+  }
+
+  function parseLines(str) {
+    var lines = str.split("\n");
+    var result = [];
+    for (var i = 0; i < lines.length; i++) {
+      var s = lines[i].trim();
+      if (s.length > 0) {
+        result.push(s);
+      }
+    }
+    return result;
+  }
+
+  btnSave.addEventListener("click", function() {
+    lib.Girl.truths = parseLines(txtGirlTruth.value);
+    lib.Girl.dares = parseLines(txtGirlDare.value);
+    lib.Boy.truths = parseLines(txtBoyTruth.value);
+    lib.Boy.dares = parseLines(txtBoyDare.value);
+
+    try {
+      localStorage.setItem("gameLib", JSON.stringify(lib));
+    } catch(e) {}
+
+    var orig = btnSave.textContent;
+    btnSave.textContent = "Saved!";
+    btnSave.style.background = "#16a34a";
+    setTimeout(function() {
+      btnSave.textContent = orig;
+      btnSave.style.background = "#2563eb";
+    }, 1500);
+  });
+
+  /* ========== SPIRAL PATH ========== */
+  function buildSpiral(count) {
+    var cells = [];
+    var gridSize = 6;
+    var visited = [];
+    var r, c;
+    for (r = 0; r < gridSize; r++) {
+      visited[r] = [];
+      for (c = 0; c < gridSize; c++) {
+        visited[r][c] = false;
+      }
+    }
+
+    var x = 0, y = 0;
+    var dirs = [[1,0],[0,1],[-1,0],[0,-1]];
+    var di = 0;
+
+    for (var i = 0; i < count; i++) {
+      cells.push({x: x, y: y});
+      visited[y][x] = true;
+
+      if (i < count - 1) {
+        var nx = x + dirs[di][0];
+        var ny = y + dirs[di][1];
+
+        if (nx < 0 || nx >= gridSize || ny < 0 || ny >= gridSize || visited[ny][nx]) {
+          di = (di + 1) % 4;
+        }
+        x = x + dirs[di][0];
+        y = y + dirs[di][1];
+      }
+    }
+    return cells;
+  }
+
+  /* ========== CHESS ========== */
+  function initChess() {
+    chessGameOver = false;
+    chessGirl = 0;
+    chessBoy = 0;
+    diceRolling = false;
+
+    // New dice logic init
+    chessPhase = "firstRoll";
+    firstPlayer = "";
+    secondPlayer = "";
+    turnIndex = 0;
+
+    spiralCells = buildSpiral(30);
+
+    var oldCells = chessBoard.querySelectorAll(".chess-cell");
+    for (var i = 0; i < oldCells.length; i++) {
+      oldCells[i].parentNode.removeChild(oldCells[i]);
+    }
+
+    var boardW = chessBoard.offsetWidth;
+    if (boardW <= 0) { boardW = 400; }
+
+    var maxX = 0, maxY = 0;
+    for (var j = 0; j < spiralCells.length; j++) {
+      if (spiralCells[j].x > maxX) { maxX = spiralCells[j].x; }
+      if (spiralCells[j].y > maxY) { maxY = spiralCells[j].y; }
+    }
+    var cols = maxX + 1;
+    var rows = maxY + 1;
+    var cellSize = boardW / Math.max(cols, rows);
+
+    for (var k = 0; k < spiralCells.length; k++) {
+      var div = document.createElement("div");
+      div.className = "chess-cell";
+      div.style.width = cellSize + "px";
+      div.style.height = cellSize + "px";
+      div.style.left = (spiralCells[k].x * cellSize) + "px";
+      div.style.top = (spiralCells[k].y * cellSize) + "px";
+      div.textContent = (k + 1).toString();
+      div.setAttribute("data-idx", k.toString());
+      chessBoard.appendChild(div);
+    }
+
+    positionPieces(cellSize);
+    diceInfo.textContent = "Click the dice to see who goes first";
+    diceSub.textContent = "(Odd = Girl first, Even = Boy first)";
+    diceBtn.innerHTML = "&#127922;";
+    winOverlay.classList.remove("show");
+    chessPopup.classList.remove("show");
+  }
+
+  function getCellSize() {
+    var boardW = chessBoard.offsetWidth;
+    if (boardW <= 0) { boardW = 400; }
+    var maxX = 0, maxY = 0;
+    for (var j = 0; j < spiralCells.length; j++) {
+      if (spiralCells[j].x > maxX) { maxX = spiralCells[j].x; }
+      if (spiralCells[j].y > maxY) { maxY = spiralCells[j].y; }
+    }
+    return boardW / Math.max(maxX + 1, maxY + 1);
+  }
+
+  function positionPieces(cs) {
+    if (!spiralCells[chessGirl] || !spiralCells[chessBoy]) { return; }
+    var pSize = cs * 0.55;
+    var cA = spiralCells[chessGirl];
+    var cB = spiralCells[chessBoy];
+
+    pieceGirl.style.width = pSize + "px";
+    pieceGirl.style.height = pSize + "px";
+    pieceGirl.style.left = (cA.x * cs + cs / 2 - pSize / 2 - pSize * 0.25) + "px";
+    pieceGirl.style.top = (cA.y * cs + cs / 2 - pSize / 2) + "px";
+
+    pieceBoy.style.width = pSize + "px";
+    pieceBoy.style.height = pSize + "px";
+    pieceBoy.style.left = (cB.x * cs + cs / 2 - pSize / 2 + pSize * 0.25) + "px";
+    pieceBoy.style.top = (cB.y * cs + cs / 2 - pSize / 2) + "px";
+  }
+
+  /* ---------- DICE ROLL ANIMATION ---------- */
+  function rollDice() {
+    if (chessGameOver || diceRolling) { return; }
+    diceRolling = true;
+    diceBtn.classList.add("rolling");
+
+    var faces = ["\u2680","\u2681","\u2682","\u2683","\u2684","\u2685"];
+    var count = 0;
+    var interval = setInterval(function() {
+      diceBtn.textContent = faces[Math.floor(Math.random() * 6)];
+      count++;
+      if (count > 10) {
+        clearInterval(interval);
+        diceBtn.classList.remove("rolling");
+        var result = Math.floor(Math.random() * 6) + 1;
+        diceBtn.textContent = faces[result - 1];
+        handleDice(result);
+        diceRolling = false;
+      }
+    }, 80);
+  }
+
+  diceBtn.addEventListener("click", rollDice);
+
+  /* ---------- NEW DICE LOGIC ---------- */
+  function handleDice(result) {
+
+    /* --- PHASE 1: First roll determines who goes first --- */
+    if (chessPhase === "firstRoll") {
+      if (result % 2 === 1) {
+        // Odd -> Girl goes first
+        firstPlayer = "Girl";
+        secondPlayer = "Boy";
+        diceInfo.textContent = "Rolled " + result + " (Odd) -> Girl goes first!";
+      } else {
+        // Even -> Boy goes first
+        firstPlayer = "Boy";
+        secondPlayer = "Girl";
+        diceInfo.textContent = "Rolled " + result + " (Even) -> Boy goes first!";
+      }
+      diceSub.textContent = "Next roll: " + firstPlayer + "'s turn";
+      chessPhase = "turns";
+      turnIndex = 0;
+      return;
+    }
+
+    /* --- PHASE 2: Alternating turns --- */
+    if (chessPhase === "turns") {
+      // Determine whose turn it is
+      var currentIsFirst = (turnIndex % 2 === 0);
+      var who = currentIsFirst ? firstPlayer : secondPlayer;
+      var steps = result;
+
+      // Move the player
+      if (who === "Girl") {
+        chessGirl = Math.min(chessGirl + steps, 29);
+        diceInfo.textContent = "Girl rolled " + steps + ", advances " + steps + " steps! (Position: " + (chessGirl + 1) + "/30)";
+      } else {
+        chessBoy = Math.min(chessBoy + steps, 29);
+        diceInfo.textContent = "Boy rolled " + steps + ", advances " + steps + " steps! (Position: " + (chessBoy + 1) + "/30)";
+      }
+
+      // Reposition pieces
+      var cs = getCellSize();
+      positionPieces(cs);
+
+      // Highlight current cell
+      var allCells = chessBoard.querySelectorAll(".chess-cell");
+      for (var i = 0; i < allCells.length; i++) {
+        allCells[i].classList.remove("hl");
+      }
+      var curPos = (who === "Girl") ? chessGirl : chessBoy;
+      var targetCell = chessBoard.querySelector('[data-idx="' + curPos + '"]');
+      if (targetCell) { targetCell.classList.add("hl"); }
+
+      // Check win condition
+      if (chessGirl >= 29 || chessBoy >= 29) {
+        chessGameOver = true;
+        var winner = (chessGirl >= 29) ? "Girl" : "Boy";
+        diceSub.textContent = "";
+        setTimeout(function() {
+          winText.textContent = winner + " Win!";
+          winText.style.color = (winner === "Girl") ? "#dc2626" : "#2563eb";
+          winOverlay.classList.add("show");
+        }, 500);
+        return;
+      }
+
+      // Advance turn
+      turnIndex++;
+
+      // Determine next player for display
+      var nextIsFirst = (turnIndex % 2 === 0);
+      var nextWho = nextIsFirst ? firstPlayer : secondPlayer;
+      diceSub.textContent = "Next roll: " + nextWho + "'s turn";
+
+      // Show dare popup for current player
+      setTimeout(function() {
+        showDare(who);
+      }, 500);
+    }
+  }
+
+  function showDare(player) {
+    var pool = lib[player].dares;
+    var dare;
+    if (!pool || pool.length === 0) {
+      dare = "(Dare list is empty, please go to Custom to add)";
+    } else {
+      dare = pool[Math.floor(Math.random() * pool.length)];
+    }
+    var pos = (player === "Girl") ? (chessGirl + 1) : (chessBoy + 1);
+    popupTitle.textContent = player + "'s Dare (Square " + pos + ")";
+    popupTitle.style.color = (player === "Girl") ? "#dc2626" : "#2563eb";
+    popupText.textContent = dare;
+    chessPopup.classList.add("show");
+  }
+
+  popupClose.addEventListener("click", function() {
+    chessPopup.classList.remove("show");
+  });
+
+  winBtn.addEventListener("click", function() {
+    initChess();
+  });
+
+  /* ========== RESIZE ========== */
+  window.addEventListener("resize", function() {
+    if (currentPage === "chess" && spiralCells.length > 0) {
+      var cs = getCellSize();
+      var allCells = chessBoard.querySelectorAll(".chess-cell");
+      for (var i = 0; i < allCells.length; i++) {
+        var idx = parseInt(allCells[i].getAttribute("data-idx"), 10);
+        if (spiralCells[idx]) {
+          allCells[i].style.width = cs + "px";
+          allCells[i].style.height = cs + "px";
+          allCells[i].style.left = (spiralCells[idx].x * cs) + "px";
+          allCells[i].style.top = (spiralCells[idx].y * cs) + "px";
+        }
+      }
+      positionPieces(cs);
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
