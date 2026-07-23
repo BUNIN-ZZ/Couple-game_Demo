@@ -86,4 +86,4 @@ Since this is a standalone web demo, **no installation or build step is required
 ### Local Play
 1. Clone the repository or download the `Couple game_Demo_0.0.html` file.
    ```sh
-   git clone https://github.com/YOUR_USERNAME/https://github.com/BUNIN-ZZ/Couple-game_Demo.git.git
+   git clone https://github.com/BUNIN-ZZ/Couple-game_Demo.git.git
